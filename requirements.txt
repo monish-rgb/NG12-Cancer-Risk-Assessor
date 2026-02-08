@@ -1,0 +1,27 @@
+# API Framework
+fastapi
+uvicorn
+pydantic
+
+# LangChain + LangGraph with Google Gemini
+langchain-google-genai
+langchain-core
+langgraph
+
+# Vector Database
+chromadb
+
+# PDF Parsing
+pymupdf
+
+# Frontend
+streamlit
+requests
+
+# Environment
+python-dotenv
+
+# Testing
+pytest
+httpx
+pytest-asyncio
