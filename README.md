@@ -79,11 +79,12 @@ cp .env.example .env
 
 ```
 you can just run the application the pdf is ingested automatically and embeddings are created in vectorstore
+So, just start the FastAPI backend and the Streamlit frontend the first query will trigger auto-ingestion if the vectorstore does not exist yet. The only thing is that the first request will be a little slower since it needs to parse the PDF, subsequent requests are faster
 ```
 
-This parses the NG12 PDF, generates embeddings via Gemini, and stores them in ChromaDB under `vectorstore/`. If the vector store already exists, it skips ingestion (use `--force` to re-ingest).
+This parses the NG12 PDF, generates embeddings via Gemini, and stores them in ChromaDB under `vectorstore/`. If the vector store already exists, it skips ingestion.
 
-The vector store is also auto-built on first API request if it doesn't exist.
+The vector store is also auto-built on first API request if it does not exist.
 
 ### 3. Run the Application
 
@@ -109,9 +110,6 @@ The Streamlit UI has two tabs:
 ```bash
 # Build and start both services
 docker-compose up --build
-
-# First time only: build the vector store
-docker-compose exec api python -m ingestion.ingest_pdf
 ```
 
 Both tabs are available at <http://localhost:8501>.
@@ -209,12 +207,12 @@ docker-compose exec api pytest tests/ -v
 ├── ingestion/
 │   └── ingest_pdf.py      # PDF parsing + embedding + ChromaDB indexing
 ├── data/
-│   ├── patients.json      # Simulated patient database (10 patients)
+│   ├── patients.json      # Simulated patient database
 │   └── *.pdf              # NG12 guidelines PDF
-├── vectorstore/           # ChromaDB persistent storage (auto-generated)
+├── vectorstore/           # ChromaDB
 ├── tests/                 # Pytest test suite
 ├── ui/
-│   └── streamlit_app.py   # Streamlit frontend (both tabs)
+│   └── streamlit_app.py   # Streamlit frontend
 ├── PROMPTS.md             # Prompt engineering docs (Part 1)
 ├── CHAT_PROMPTS.md        # Chat prompt & grounding docs (Part 2)
 ├── Dockerfile
