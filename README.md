@@ -220,3 +220,9 @@ docker-compose exec api pytest tests/ -v
 ├── requirements.txt
 └── .env                   # GOOGLE_API_KEY (not committed)
 ```
+
+## Further system improvements
+
+**With more time:** I wil add a proper clinical validation layer (compare outputs against expert annotated cases, track false positive/negative rates for urgent referrals) and add a human-in-the-loop review step before any risk level is shown as final.
+**Re-Ranking:** After retrieving top-k chunks from ChromaDB I would add a cross-encoder re-ranker (e.g flashrank) to re-score and filter chunks before passing them to the LLM.
+**My Suggestions:** gemini-2.0-flash-lite-001 is optimized for speed and cost but is the least capable Gemini model now available. For clinical use, gemini-2.0-flash would give better reasoning at moderate cost increase
