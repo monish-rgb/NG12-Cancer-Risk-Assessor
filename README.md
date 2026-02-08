@@ -1,18 +1,17 @@
 # NG12 Cancer Risk Assessor
 
-A Clinical Decision Support system that uses the NICE NG12 guidelines ("Suspected cancer: recognition and referral") to assess patient cancer risk and answer clinical questions. Built with Google Gemini, LangGraph, FastAPI, ChromaDB, and Streamlit.
+A Clinical Decision Support system that uses the NG12 guidelines to assess patient cancer risk and answer clinical questions. Built with Google Gemini, LangGraph, FastAPI, ChromaDB, and Streamlit.
 
 ## Architecture
 
 ```
 User (Streamlit UI)
   |
-  v
 FastAPI Service
   |
   +-- Part 1: Risk Assessment
   |     Patient ID -> Gemini ReAct Agent -> [get_patient_data + search_guidelines] -> Risk Assessment + Citations
-  |
+
   +-- Part 2: Chat
         Question -> RAG Retrieval -> Gemini LLM -> Synthesized Answer + Citations
   |
@@ -32,18 +31,19 @@ FastAPI Service
 
 1. User asks a free-text question about NG12 guidelines
 2. Question is embedded and matched against the ChromaDB vector store (top 5 chunks)
-3. Evidence quality is checked — weak matches trigger a "not found" disclaimer without calling the LLM
-4. Retrieved chunks + conversation history are sent to Gemini for synthesis
-5. Returns a grounded answer with citations from the guideline text
+3. Evidence quality is checked weak matches trigger a "not found" disclaimer without calling the LLM
+4. The quality is checked between the user prompt and the NG12 guidelines using cosine similarity using this the LLM answered are grounded (guardrails)
+5. Retrieved chunks + conversation history are sent to Gemini for synthesis
+6. Returns a grounded answer with citations from the guideline text
 
 Both parts share the same vector store and embedding model — no re-ingestion per request.
 
 ## Tech Stack
 
-- **LLM**: Google Gemini 1.5 Flash (via `langchain-google-genai`)
+- **LLM**: Google gemini-2.0-flash-lite-001 (via `langchain-google-genai`) as gemini-1.5 is not available in vertexAI or GoogleAI Studio
 - **Agent Framework**: LangGraph ReAct agent (Part 1), direct LLM calls (Part 2)
 - **Embeddings**: `models/gemini-embedding-001` (via `langchain-google-genai`)
-- **Vector DB**: ChromaDB (local persistent storage)
+- **Vector DB**: ChromaDB
 - **PDF Parsing**: PyMuPDF
 - **Backend**: FastAPI + Uvicorn
 - **Frontend**: Streamlit
@@ -77,8 +77,8 @@ cp .env.example .env
 
 ### 2. Build Vector Store
 
-```bash
-python -m ingestion.ingest_pdf
+```
+you can just run the application the pdf is ingested automatically and embeddings are created in vectorstore
 ```
 
 This parses the NG12 PDF, generates embeddings via Gemini, and stores them in ChromaDB under `vectorstore/`. If the vector store already exists, it skips ingestion (use `--force` to re-ingest).
@@ -88,10 +88,10 @@ The vector store is also auto-built on first API request if it doesn't exist.
 ### 3. Run the Application
 
 ```bash
-# Terminal 1: Start FastAPI backend
+# Terminal 1: Start FastAPI backend first
 uvicorn app.main:app --reload --port 8000
 
-# Terminal 2: Start Streamlit frontend
+# Terminal 2: Then start Streamlit frontend
 streamlit run ui/streamlit_app.py
 ```
 
